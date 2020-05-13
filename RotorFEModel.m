@@ -19,21 +19,44 @@ end
 
 
 methods
-  function obj = RotorFEModel(elements)
+  function obj = RotorFEModel(varargin)
     % Constructor
-    obj.numEl  = size(elements, 2);
-    obj.numNo  = obj.numEl+1;
-    obj.numDof = obj.numNo*4;
-
-    % Set size of system matrices and state matrices
-    obj.M = zeros(obj.numDof);
-    obj.G = zeros(obj.numDof);
-    obj.K = zeros(obj.numDof);
-    obj.D = zeros(obj.numDof);
-
-    obj.buildShaftMatrices(elements);
 
     obj.damped = false;
+
+    % Handle if mesh is supplied or external model
+    if nargin < 2
+      elements   = varargin{1};
+      obj.numEl  = size(elements, 2);
+      obj.numNo  = obj.numEl+1;
+      obj.numDof = obj.numNo*4;
+
+      % Set size of system matrices and state matrices
+      obj.M = zeros(obj.numDof);
+      obj.G = zeros(obj.numDof);
+      obj.K = zeros(obj.numDof);
+      obj.D = zeros(obj.numDof);
+
+      obj.buildShaftMatrices(elements);
+
+    else
+      obj.M      = varargin{1};
+      obj.G      = varargin{2};
+      obj.K      = varargin{3};
+      obj.numDof = size(obj.M, 1);
+      obj.numNo  = obj.numDof/4;
+      obj.numEl  = obj.numNo-1;
+
+      % Handle damping if supplied
+      if nargin > 3 && sum(varargin{4}, 'all') > 0
+        obj.D      = varargin{4};
+        obj.damped = true;
+      else
+        obj.D = zeros(obj.numDof);
+      end
+
+    end
+
   end
 
   function buildShaftMatrices(obj, elements)
@@ -172,9 +195,6 @@ methods
             obj.K(es+1:es+4, es+1:es+4) + component.localK;
         end
       end
-    elseif isa(component, 'MagnetBearing')
-    else
-      warning('Unrecognized component, nothing added.')
     end
 
     % Add component to internal component list (used for info and debug)
@@ -200,9 +220,22 @@ methods
 
   function printInfo(obj)
     % Prints some information concerning the FE model.
+
+    if obj.damped
+      dampedAns = 'yes';
+    else
+      dampedAns = 'no';
+    end
+
     fprintf('\nFE-model info:\n  Number of elements: %d\n', obj.numEl);
     fprintf('  Number of DOFs: %d\n', obj.numDof);
-    fprintf('  Number of nodal components added: %d\n\n', length(obj.comps));
+    fprintf('  Internally damped: %s\n', dampedAns);
+    fprintf('  Nodal components added: %d\n', length(obj.comps));
+    for i = 1:length(obj.comps)
+      fprintf('    - %s at node %d\n', class(obj.comps{i}), ...
+              obj.comps{i}.nodalPosition);
+    end
+    fprintf('\n');
   end
 
 end
