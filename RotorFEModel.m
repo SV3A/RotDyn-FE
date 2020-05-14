@@ -216,6 +216,20 @@ methods
     if obj.damped
       rotorSystem.D = obj.D;
     end
+
+    % Collect discs and bearings for easy referencing
+    discs    = {};
+    bearings = {};
+    for i = 1:length(obj.comps)
+      if isa(obj.comps{i}, 'Disc') || isa(obj.comps{i}, 'IntDisc')
+        discs{length(discs)+1} = obj.comps{i};
+      elseif isa(obj.comps{i}, 'Bearing') || isa(obj.comps{i}, 'MagnetBearing')
+        bearings{length(bearings)+1} = obj.comps{i};
+      end
+    end
+
+    rotorSystem.discs    = discs;
+    rotorSystem.bearings = bearings;
   end
 
   function printInfo(obj)
