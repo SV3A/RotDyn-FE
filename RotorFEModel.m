@@ -195,6 +195,10 @@ methods
             obj.K(es+1:es+4, es+1:es+4) + component.localK;
         end
       end
+    elseif isa(component, 'Damper')
+      obj.damped = true;
+      obj.D(es+1, es+1) = obj.D(es+1, es+1) + component.d;
+      obj.D(es+2, es+2) = obj.D(es+2, es+2) + component.d;
     end
 
     % Add component to internal component list (used for info and debug)
