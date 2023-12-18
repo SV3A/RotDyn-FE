@@ -140,6 +140,9 @@ methods
 
 
       % Construct the global mass- and gyro matrix (of size numDof x numDof)
+      %
+      % Note (e-1)*4 is the local indexing, at each iteration it will start
+      % with 1, 2, 3 ...
       for i = a:b
         for j = a:b
           obj.M(i, j) = obj.M(i,j) + localMLin(i - (e-1)*4, j - (e-1)*4);

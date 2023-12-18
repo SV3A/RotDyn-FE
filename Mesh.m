@@ -1,26 +1,48 @@
 classdef Mesh < handle
 % The 'Mesh' object represent the discretizised elements with associated
-% material properties. The resulting object is pass-by-reference.
+% material properties.
 
 properties
   numEl % Number of finite shaft elements
 
+  scale % Length scale, default is 1
+
   % 5xnumEl matrix containing each element and associated material props:
-  %   | el. length       ... numEl |
-  %   | el. outer radius ... numEl |
-  %   | el. inner radius ... numEl |
-  %   | el. density      ... numEl |
-  %   | el. Young's mod  ... numEl |
+  %   | el. length       ... numEl               |
+  %   | el. outer radius ... numEl               |
+  %   | el. inner radius ... numEl               |
+  %   | el. density      ... numEl               |
+  %   | el. Young's mod  ... numEl               |
   elements
 end
 
 
 methods
-  function obj = Mesh(mesh)
-    % Constructor
+  function obj = Mesh(mesh, varargin)
+
     obj.numEl = sum(mesh(4,:));
 
     obj.elements = zeros(5, obj.numEl);
+
+    % Set length scale
+    if nargin < 2
+      obj.scale = 1;
+
+    else
+      switch varargin{1}
+        case 'm'
+          obj.scale = 1;
+        case 'mm'
+          obj.scale = 1e-3;
+        otherwise
+          if isnumeric
+            obj.scale = scaleArg
+          else
+            error('Unknown scale parameter supplied')
+          end
+      end
+    end
+
     obj.setGeometry(mesh);
   end
 
@@ -34,9 +56,9 @@ methods
       reps = mesh(4, i);
       endIdx = startIdx+reps-1;
 
-      elLength    = 1e-3*mesh(1,i)/mesh(4,i);
-      elOutRadius = 1e-3*mesh(2,i);
-      elInRadius  = 1e-3*mesh(3,i);
+      elLength    = obj.scale*mesh(1,i)/mesh(4,i);
+      elOutRadius = obj.scale*mesh(2,i);
+      elInRadius  = obj.scale*mesh(3,i);
 
       obj.elements(1, startIdx:endIdx) = repelem(elLength,    reps);
       obj.elements(2, startIdx:endIdx) = repelem(elOutRadius, reps);
