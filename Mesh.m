@@ -7,12 +7,13 @@ properties
 
   scale % Length scale, default is 1
 
-  % 5xnumEl matrix containing each element and associated material props:
+  % 6xnumEl matrix containing each element and associated material props:
   %   | el. length       ... numEl               |
   %   | el. outer radius ... numEl               |
   %   | el. inner radius ... numEl               |
   %   | el. density      ... numEl               |
   %   | el. Young's mod  ... numEl               |
+  %   | el. reference to parent geometry element |
   elements
 end
 
@@ -22,7 +23,7 @@ methods
 
     obj.numEl = sum(mesh(4,:));
 
-    obj.elements = zeros(5, obj.numEl);
+    obj.elements = zeros(6, obj.numEl);
 
     % Set length scale
     if nargin < 2
@@ -63,6 +64,9 @@ methods
       obj.elements(1, startIdx:endIdx) = repelem(elLength,    reps);
       obj.elements(2, startIdx:endIdx) = repelem(elOutRadius, reps);
       obj.elements(3, startIdx:endIdx) = repelem(elInRadius,  reps);
+      % obj.elements(4, startIdx:endIdx) is set in obj.setDensity
+      % obj.elements(5, startIdx:endIdx) is set in obj.setEmod
+      obj.elements(6, startIdx:endIdx) = i;
 
       startIdx = startIdx+reps;
     end
