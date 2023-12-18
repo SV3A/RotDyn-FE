@@ -36,8 +36,8 @@ methods
         case 'mm'
           obj.scale = 1e-3;
         otherwise
-          if isnumeric
-            obj.scale = scaleArg
+          if isnumeric(varargin{1})
+            obj.scale = varargin{1};
           else
             error('Unknown scale parameter supplied')
           end

@@ -12,7 +12,7 @@ shaftDim = [500 250 250   % Length [mm]
               0   0   0   % Inner radius [mm]
               6   3   3]; % Partition num    ];
 
-msh = Mesh(shaftDim);
+msh = Mesh(shaftDim, 'mm');
 msh.setDensity(7800);
 msh.setEmod(2.0e11);
 
