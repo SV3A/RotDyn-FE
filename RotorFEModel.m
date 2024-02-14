@@ -4,9 +4,10 @@ classdef RotorFEModel < handle
 % bearings or discs.  The resulting object is pass-by-reference.
 
 properties
-  numEl;  % Number of elements
-  numDof; % Number of degress of freedom
-  numNo;  % Number of nodes
+  numNoDof % Number of degrees of freedom pr element
+  numEl;   % Number of elements
+  numDof;  % Number of degress of freedom
+  numNo;   % Number of nodes
 
   M;      % Global mass matrix
   G;      % Global gyroscopic matrix
@@ -23,6 +24,8 @@ methods
     % Constructor
 
     obj.damped = false;
+
+    obj.numNoDof = 4;
 
     % Handle if mesh is supplied or external model
     if nargin < 2
@@ -44,7 +47,7 @@ methods
       obj.G      = varargin{2};
       obj.K      = varargin{3};
       obj.numDof = size(obj.M, 1);
-      obj.numNo  = obj.numDof/4;
+      obj.numNo  = obj.numDof/obj.numNoDof;
       obj.numEl  = obj.numNo-1;
 
       % Handle damping if supplied
@@ -216,6 +219,7 @@ methods
 
     rotorSystem.numDof = obj.numDof;
     rotorSystem.comps  = obj.comps;
+    rotorSystem.nodeDof = obj.numNoDof;
 
     rotorSystem.M = obj.M;
     rotorSystem.K = obj.K;
